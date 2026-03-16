@@ -15,7 +15,7 @@ with col2:
     st.subheader("保有資格")
     
     with st.expander("🌐 クラウド・AI関連", expanded=True):
-        st.write("- Azure AZ-900 / DP-900")
+        st.write("- Azure AZ-900 / DP-900 / AI-900")
         st.write("- Microsoft PL-900")
         st.write("- Google Cloud Generative AI Leader")
         
