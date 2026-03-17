@@ -26,4 +26,5 @@ with col2:
         st.write("- Oracle Java SE Bronze")
 
     with st.expander("📊 ビジネス・Office"):
-        st.write("- MOS Expert (Excel, Word, PowerPoint)")
+        st.write("- MOS Expert (Excel, Word)")
+        st.write("- MOS PowerPoint")

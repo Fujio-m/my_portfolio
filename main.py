@@ -23,7 +23,7 @@ st.markdown("""
 
 #### 🛠️ 使用技術
 - **Frontend:** Streamlit
-- **AI Model:** Gemini 1.5 Flash (Google AI Studio)
+- **AI Model:** Gemini 2 Flash (Google AI Studio)
 - **Method:** RAG (PDFドキュメント参照)
 """)
 
