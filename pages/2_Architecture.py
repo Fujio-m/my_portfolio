@@ -12,7 +12,7 @@ st.markdown("""
 
 ### 🛠️ 技術スタック
 - **Frontend/Backend:** Streamlit (Python)
-- **AI Model:** Gemini 2 Flash
+- **AI Model:** gemini-2.5-flash-lite
 - **API:** Google AI Studio API
 - **Data Source:** PDFファイル（社内規定、勤怠マニュアル）
 """)
