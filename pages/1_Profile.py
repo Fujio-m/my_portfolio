@@ -1,15 +1,22 @@
 import streamlit as st
 
+st.set_page_config(page_title="自己紹介", page_icon="👤", layout="wide")
 st.title("👤 自己紹介")
 
-col1, col2 = st.columns([1, 2])
+col1, col2 = st.columns([1, 1])
 
 with col1:
-    # st.image("your_photo.png") # 写真があれば
     st.subheader("基本情報")
     st.write("名前: [あなたの名前]")
     st.write("年齢: 34歳")
-    st.write("目標: ITエンジニアとして業務効率化に貢献する")
+    st.write("目標・キャリアビジョン")
+    st.info("""
+        **IT技術による「現場の課題解決」のスペシャリストへ**
+
+        AI利活用や業務自動化を通じて、組織の生産性向上に直結する貢献を目指しています。
+        開発スキルに加え、最新の生成AI知見と実務効率化の視点を掛け合わせ、
+        「社員がよりクリエイティブな仕事に集中できる環境」を構築したいと考えています。
+        """)
 
 with col2:
     st.subheader("保有資格")
