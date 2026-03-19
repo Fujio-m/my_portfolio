@@ -5,7 +5,7 @@ from pypdf import PdfReader
 import os
 
 # --- 1. ページ設定とUI ---
-st.set_page_config(page_title="勤怠管理QAボット")
+st.set_page_config(page_title="勤怠管理QAボット", layout="wide")
 st.title("🤖 勤怠管理QAアシスタント")
 
 # セッションステート（履歴保存用）の初期化
@@ -16,11 +16,6 @@ if "chat_history" not in st.session_state:
 if "display_history" not in st.session_state:
     initial_message =(
         "こんにちは。 社内規定（勤怠管理）について、どのような情報をお探しでしょうか？\n\n"
-        "例えば、以下のようなご質問にお答えできます。\n"
-        "* **[午前休の出勤時間は？]**\n"
-        "* **[時差出勤の申請ルール]**\n"
-        "* **[急に休みたくなった時は？]**\n"
-        "* **[電車が遅延した！]**\n\n"
         "お気軽にご質問ください。"
     )
     
@@ -73,15 +68,38 @@ if os.path.exists(pdf_path):
     pdf_content = get_pdf_text(pdf_path)
     client = get_ai_client()
 
-    # 画面にこれまでの会話を表示
-    for msg in st.session_state.display_history:
+    # --- 2. 画面表示とボタンの配置 ---
+    selected_question = None
+
+    for i, msg in enumerate(st.session_state.display_history):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
+        # 「最初のメッセージ（i=0）」の時だけ、その枠内にボタンを表示する
+        # 条件を i == 0 だけにすることで、会話が進んでも「最初の挨拶の下」にボタンが残り続けます
+        if i == 0:
+            st.caption("💡 よくある質問例：")
+            # 縦に並べる。keyを固定することで、再実行されてもボタンの状態が維持されます。
+            if st.button("🕒 午前休の出勤時間は？", key="btn_faq_1"):
+                selected_question = "午前休の出勤時間は？"
+            if st.button("📝 時差出勤の申請ルール", key="btn_faq_2"):
+                selected_question = "時差出勤のルールは？"
+            if st.button("🆘 急に休みたくなった時は？", key="btn_faq_3"):
+                selected_question = "急に休みたくなった時は？"
+            if st.button("🚃 電車が遅延した場合は？", key="btn_faq_4"):
+                selected_question = "電車が遅延した場合は？"
     # チャット入力
-    if prompt := st.chat_input("勤怠について質問してください"):
+    chat_prompt = st.chat_input("勤怠について質問してください")
+
+    # ボタンが押されたか、チャットが入力されたかを判定
+    final_prompt = selected_question if selected_question else chat_prompt
+
+    # 何かしらの入力があった場合に実行
+    if final_prompt:
+        # 履歴（表示用）に追加して画面に表示
+        st.session_state.display_history.append({"role": "user", "content": final_prompt})
         with st.chat_message("user"):
-            st.markdown(prompt)
+            st.markdown(final_prompt)
 
         with st.chat_message("assistant"):
             # ここにスピナー（ぐるぐる）を追加
@@ -94,7 +112,7 @@ if os.path.exists(pdf_path):
                     # 最新パッケージでの生成処理
                     response = client.models.generate_content(
                         model="gemini-2.5-flash-lite", # Liteモデルを指定
-                        contents=st.session_state.chat_history + [prompt], # 履歴 + 今回の質問
+                        contents=st.session_state.chat_history + [final_prompt], # 履歴 + 今回の質問
                         config=types.GenerateContentConfig(
                             system_instruction=final_instruction,
                             temperature=0.1,
@@ -106,7 +124,7 @@ if os.path.exists(pdf_path):
                     st.markdown(ans_text)
                 
                     # 次回の会話のために履歴に蓄積
-                    st.session_state.chat_history.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
+                    st.session_state.chat_history.append(types.Content(role="user", parts=[types.Part.from_text(text=final_prompt)]))
                     st.session_state.chat_history.append(types.Content(role="model", parts=[types.Part.from_text(text=ans_text)]))
                     st.session_state.display_history.append({"role": "assistant", "content": ans_text})
 
