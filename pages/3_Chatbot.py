@@ -80,14 +80,41 @@ if os.path.exists(pdf_path):
         if i == 0:
             st.caption("💡 よくある質問例：")
             # 縦に並べる。keyを固定することで、再実行されてもボタンの状態が維持されます。
-            if st.button("🕒 午前休の出勤時間は？", key="btn_faq_1"):
-                selected_question = "午前休の出勤時間は？"
+            if st.button("🕒 時差出勤の昼休憩の時間は？", key="btn_faq_1"):
+                selected_question = "時差出勤の昼休憩の時間は？"
             if st.button("📝 時差出勤の申請ルール", key="btn_faq_2"):
                 selected_question = "時差出勤のルールは？"
             if st.button("🆘 急に休みたくなった時は？", key="btn_faq_3"):
                 selected_question = "急に休みたくなった時は？"
             if st.button("🚃 電車が遅延した場合は？", key="btn_faq_4"):
                 selected_question = "電車が遅延した場合は？"
+
+        # AIの回答（assistant）に対して「解決ボタン」を表示
+            if msg["role"] == "assistant" and i > 0:
+                st.divider()
+                st.write("💡 **解決しましたか？**")
+                
+                # ボタンのキーを一意にする
+                btn_key_id = i 
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("👍 はい", key=f"yes_{btn_key_id}", use_container_width=True):
+                        st.session_state[f"status_{btn_key_id}"] = "resolved"
+                with col2:
+                    if st.button("👎 いいえ", key=f"no_{btn_key_id}", use_container_width=True):
+                        st.session_state[f"status_{btn_key_id}"] = "unresolved"
+
+                # 状態のチェックとメッセージ表示
+                status = st.session_state.get(f"status_{btn_key_id}")
+                if status == "resolved":
+                    st.success("ご利用ありがとうございました！")
+                elif status == "unresolved":
+                    form_url = st.secrets["contact"]["form_url"]
+                    esc_msg = st.secrets["contact"]["escalation_msg"]
+                    st.info(f"{esc_msg}\n\n👉 [勤怠問い合わせフォーム]({form_url})")
+                    st.warning("⚠️ **緊急の場合**は上司へお電話ください。")
+
     # チャット入力
     chat_prompt = st.chat_input("勤怠について質問してください")
 
@@ -118,11 +145,12 @@ if os.path.exists(pdf_path):
                             temperature=0.1,
                         )
                     )
-                
+
                     # 3. 結果を画面表示 & 履歴（保存用）に追加
                     ans_text = response.text
                     st.markdown(ans_text)
-                
+
+
                     # 次回の会話のために履歴に蓄積
                     st.session_state.chat_history.append(types.Content(role="user", parts=[types.Part.from_text(text=final_prompt)]))
                     st.session_state.chat_history.append(types.Content(role="model", parts=[types.Part.from_text(text=ans_text)]))
