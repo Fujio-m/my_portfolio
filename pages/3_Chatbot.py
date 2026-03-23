@@ -4,6 +4,48 @@ from google.genai import types
 from pypdf import PdfReader
 import os
 
+# ---  メソッド定義 (UIパーツ) ---
+def display_faq_buttons():
+    """挨拶メッセージ直下のFAQボタンを表示し、選択された質問を返す"""
+    st.caption("💡 よくある質問例：")
+    # 縦に並べる。keyを固定することで、再実行されてもボタンの状態が維持されます。
+    if st.button("🕒 時差出勤の昼休憩の時間は？", key="btn_faq_1"):
+        return "時差出勤の昼休憩の時間は？"
+    if st.button("📝 時差出勤の申請ルール", key="btn_faq_2"):
+        return "時差出勤のルールは？"
+    if st.button("🆘 急に休みたくなった時は？", key="btn_faq_3"):
+        return "急に休みたくなった時は？"
+    if st.button("🚃 電車が遅延した場合は？", key="btn_faq_4"):
+        return "電車が遅延した場合は？"
+    return None
+
+def display_feedback_buttons(idx):
+    """AI回答の下に解決ボタンを縦並びで表示し、ステータスを管理する"""
+    # まだ未回答ならボタンを表示
+    st.divider()
+    st.write("💡 **解決しましたか？**")
+
+    if st.button("👍 はい (解決した)", key=f"yes_{idx}"):
+        return "解決しました"
+    if st.button("👎 いいえ (解決しない)", key=f"no_{idx}"):
+        return "解決してません"
+    return None
+
+# --- メソッド定義 (データ処理・API) ---
+@st.cache_resource
+def get_pdf_text(pdf_path):
+    """PDFからテキストを抽出してキャッシュする"""
+    text = ""
+    reader = PdfReader(pdf_path)
+    for page in reader.pages:
+        text += page.extract_text()
+    return text
+
+@st.cache_resource
+def get_ai_client():
+    """最新のGoogle Gen AIクライアントを初期化"""
+    return genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
 # --- 1. ページ設定とUI ---
 st.set_page_config(page_title="勤怠管理QAボット", layout="wide")
 st.title("🤖 勤怠管理QAアシスタント")
@@ -18,7 +60,6 @@ if "display_history" not in st.session_state:
         "こんにちは。 社内規定（勤怠管理）について、どのような情報をお探しでしょうか？\n\n"
         "お気軽にご質問ください。"
     )
-    
     st.session_state.display_history = [
         {"role": "assistant", "content": initial_message}
     ]
@@ -45,21 +86,6 @@ with st.popover("📖 使い方ガイド"):
 
 st.divider()
 
-# --- 2. PDF読み込みとクライアント初期化（キャッシュ化） ---
-@st.cache_resource
-def get_pdf_text(pdf_path):
-    """PDFからテキストを抽出してキャッシュする"""
-    text = ""
-    reader = PdfReader(pdf_path)
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
-
-@st.cache_resource
-def get_ai_client():
-    """最新のGoogle Gen AIクライアントを初期化"""
-    return genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
 # --- 3. メイン処理 ---
 # PDFの準備（パスはご自身の環境に合わせてください）
 pdf_path = "data/kintai_rule.pdf"
@@ -70,63 +96,54 @@ if os.path.exists(pdf_path):
 
     # --- 2. 画面表示とボタンの配置 ---
     selected_question = None
+    feedback_selection = None
 
     for i, msg in enumerate(st.session_state.display_history):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-        # 「最初のメッセージ（i=0）」の時だけ、その枠内にボタンを表示する
-        # 条件を i == 0 だけにすることで、会話が進んでも「最初の挨拶の下」にボタンが残り続けます
-        if i == 0:
-            st.caption("💡 よくある質問例：")
-            # 縦に並べる。keyを固定することで、再実行されてもボタンの状態が維持されます。
-            if st.button("🕒 時差出勤の昼休憩の時間は？", key="btn_faq_1"):
-                selected_question = "時差出勤の昼休憩の時間は？"
-            if st.button("📝 時差出勤の申請ルール", key="btn_faq_2"):
-                selected_question = "時差出勤のルールは？"
-            if st.button("🆘 急に休みたくなった時は？", key="btn_faq_3"):
-                selected_question = "急に休みたくなった時は？"
-            if st.button("🚃 電車が遅延した場合は？", key="btn_faq_4"):
-                selected_question = "電車が遅延した場合は？"
+            # 「最初のメッセージ（i=0）」の時だけ、その枠内にボタンを表示する
+            if i == 0:
+                selected_question = display_faq_buttons()
 
-        # AIの回答（assistant）に対して「解決ボタン」を表示
-            if msg["role"] == "assistant" and i > 0:
-                st.divider()
-                st.write("💡 **解決しましたか？**")
-                
-                # ボタンのキーを一意にする
-                btn_key_id = i 
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("👍 はい", key=f"yes_{btn_key_id}", use_container_width=True):
-                        st.session_state[f"status_{btn_key_id}"] = "resolved"
-                with col2:
-                    if st.button("👎 いいえ", key=f"no_{btn_key_id}", use_container_width=True):
-                        st.session_state[f"status_{btn_key_id}"] = "unresolved"
+            # 最新のアシスタントの回答の場合のみ表示
+            if msg["role"] == "assistant" and i == len(st.session_state.display_history) - 1:
+                # 🌟 追加：解決後の挨拶メッセージにはボタンを出さない判定
+                is_not_feedback_reply = "光栄です" not in msg["content"] and "申し訳ありません" not in msg["content"]
 
-                # 状態のチェックとメッセージ表示
-                status = st.session_state.get(f"status_{btn_key_id}")
-                if status == "resolved":
-                    st.success("ご利用ありがとうございました！")
-                elif status == "unresolved":
-                    form_url = st.secrets["contact"]["form_url"]
-                    esc_msg = st.secrets["contact"]["escalation_msg"]
-                    st.info(f"{esc_msg}\n\n👉 [勤怠問い合わせフォーム]({form_url})")
-                    st.warning("⚠️ **緊急の場合**は上司へお電話ください。")
+                if i > 0 and is_not_feedback_reply:
+                    feedback_selection = display_feedback_buttons(i)
 
-    # チャット入力
+    # --- 入力エリア ---
     chat_prompt = st.chat_input("勤怠について質問してください")
+    final_prompt = None
+    if selected_question:
+        final_prompt = selected_question
+    elif feedback_selection:
+        final_prompt = feedback_selection
+    else:
+        final_prompt = chat_prompt
 
-    # ボタンが押されたか、チャットが入力されたかを判定
-    final_prompt = selected_question if selected_question else chat_prompt
-
-    # 何かしらの入力があった場合に実行
+    # --- 回答生成プロセス ---
     if final_prompt:
         # 履歴（表示用）に追加して画面に表示
         st.session_state.display_history.append({"role": "user", "content": final_prompt})
         with st.chat_message("user"):
             st.markdown(final_prompt)
+
+        if final_prompt in ["解決しました", "解決してません"]:
+            with st.chat_message("assistant"):
+                if final_prompt == "解決しました":
+                    msg = "お役に立てて光栄です！また何かあればいつでもご質問ください。"
+                    st.success(msg)
+                else:
+                    form_url = st.secrets["FORM_URL"]
+                    msg = f"お役に立てず申し訳ありません。詳細な状況を添えて、[こちらの問い合わせフォーム]({form_url})への相談をご検討ください。"
+                    st.info(msg)
+                
+                # リロードしてもメッセージが残り、ボタンは消えます
+            st.session_state.display_history.append({"role": "assistant", "content": msg})
+            st.rerun()
 
         with st.chat_message("assistant"):
             # ここにスピナー（ぐるぐる）を追加
@@ -150,11 +167,11 @@ if os.path.exists(pdf_path):
                     ans_text = response.text
                     st.markdown(ans_text)
 
-
-                    # 次回の会話のために履歴に蓄積
+                    # 4.次回の会話のために履歴に蓄積
                     st.session_state.chat_history.append(types.Content(role="user", parts=[types.Part.from_text(text=final_prompt)]))
                     st.session_state.chat_history.append(types.Content(role="model", parts=[types.Part.from_text(text=ans_text)]))
                     st.session_state.display_history.append({"role": "assistant", "content": ans_text})
+                    st.rerun()
 
                 except Exception as e:
                     if "429" in str(e):
