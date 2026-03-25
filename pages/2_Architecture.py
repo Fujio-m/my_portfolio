@@ -55,9 +55,9 @@ def main():
     -   **Language**: Python 3.13.2
     -   **Web Framework**: **Streamlit 1.55.0**
         -   （選定理由: 高速なプロトタイピングと、直感的なUI構築が可能なため）
-    -   **AI Engine**: **Gemini 2.5 Flash-lite** (`google-genai 1.67.0`)
+    -   **AI Engine**: **Gemini 2.5 Flash-lite** (`google-genai 1.68.0`)
         -   （選定理由: PDFのコンテキスト注入に優れ、高速かつ安価に動作するため。）
-    -   **PDF Processing**: **pypdf 6.9.0**
+    -   **PDF Processing**: **pypdf 6.9.2**
         -   （選定理由: 純Python製で依存が少なく、安定してテキスト抽出を行えるため）
     """)
 
