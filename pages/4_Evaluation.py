@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.express as px
 import pandas as pd
 import os
 
@@ -12,12 +13,68 @@ def display_summary_metrics(df):
     """合格率など計算してメトリクスを表示する"""
     total_cases = len(df)
     pass_cases = len(df[df["判定"].str.contains("✅", na=False)])
+    fail_cases = total_cases - pass_cases
     pass_rate = (pass_cases / total_cases) * 100 if total_cases > 0 else 0
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("総テストケース数", f"{total_cases}件")
-    col2.metric("合格（✅）", f"{pass_cases}件")
-    col3.metric("正解率", f"{pass_rate}%")
+    col_metrics, col_chart = st.columns([1, 1])
+
+    with col_metrics:
+        st.subheader("📊 統計情報")
+        col1, col2 = st.columns(2)
+        col1.metric("総テストケース数", f"{total_cases}件")
+        col2.metric("正解率", f"{pass_rate}%")
+
+        col3, col4 = st.columns(2)
+        col3.metric("合格（✅）", f"{pass_cases}件", delta=None)
+        col4.metric("不合格（❌）", f"{fail_cases}件", delta=f"-{fail_cases}" if fail_cases > 0 else None, delta_color="inverse")
+
+    with col_chart:
+        chart_data = df["判定"].value_counts().reset_index()
+        chart_data.columns = ["判定", "件数"]
+
+        chart_data["判定"] = chart_data["判定"].replace({
+            '✅': '✅ 合格',
+            '❌': '❌ 不合格',
+            '⚠️': '⚠️ 要確認'
+        })
+
+        # Plotlyで円グラフ作成
+        fig = px.pie(
+            chart_data,
+            values="件数",
+            names="判定",
+            hole=0.4, # ドーナツチャートにするとよりモダンに見えます
+            color="判定",
+            color_discrete_map={
+                '✅ 合格': '#2ecc71',
+                '❌ 不合格': '#e74c3c',
+                '⚠️ 要確認': '#f1c40f'
+            }
+        )
+        # グラフの余白やサイズ調整
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            height=250,
+            showlegend=True
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+def get_sidebar_filters(df):
+    """
+    サイドバーにフィルターを表示し、選択された条件で絞り込んだデータフレームを返す
+    """
+    st.sidebar.header("🔍 表示フィルター")
+
+    # 判定で絞り込み
+    all_stats = df["判定"].unique().tolist()
+    selected_stats = st.sidebar.multiselect(
+        "判定を選択",
+        all_stats,
+        default=all_stats
+    )
+
+    filtered_df = df[(df["判定"].isin(selected_stats))]
+    return filtered_df
 
 def display_test_details(df):
     """詳細結果のテーブルを表示する"""
@@ -25,7 +82,19 @@ def display_test_details(df):
     # 備考欄のNoneを空文字に置き換える（表示を綺麗にするため）
     df["備考"] = df["備考"].fillna("")
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df,
+        use_container_width=True,
+        height=600,
+        hide_index=True,
+        column_config={
+            "カテゴリ": st.column_config.TextColumn("カテゴリ", width=100),
+            "判定": st.column_config.TextColumn("判定", width=50),
+            "質問内容": st.column_config.TextColumn("質問内容", width=400),
+            "期待される回答（合格基準）": st.column_config.TextColumn("期待される回答", width=350),
+            "実際の回答": st.column_config.TextColumn("実際の回答", width=1200),
+            "備考": st.column_config.TextColumn("備考", width=550),
+        }
+    )
 
 def main():
     st.title(" 🧪精度評価・テスト結果")
@@ -35,8 +104,9 @@ def main():
     df = load_test_data(CSV_PATH)
 
     if df is not None:
+        filtered_df = get_sidebar_filters(df)
         display_summary_metrics(df)
-        display_test_details(df)
+        display_test_details(filtered_df)
     else:
         st.error(f"⚠️ テストデータが見つかりません: {CSV_PATH}")
         st.info("Excel等で作成したテスト結果をCSV形式で保存し、dataフォルダに配置してください。")

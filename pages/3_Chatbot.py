@@ -115,9 +115,11 @@ def get_gemini_answer(client, final_prompt, pdf_content):
         return response.text
     except Exception as e:
         if "429" in str(e):
-            st.warning("⚠️ API制限がかかりました。1分ほど待ってから再度お試しください。")    
+            st.warning("⚠️ API制限がかかりました。1分ほど待ってから再度お試しください。")
         elif "503" in str(e):
             st.error("☁️ 現在Googleのサーバーが大変混み合っています。少し時間をおいてから再度お試しください。")
+        elif "400" in str(e):
+            st.error("⚠️ 送信データに不備があります（二重送信や空のデータ）。一度ページをリロードして再度お試しください。")
         else:
             st.error(f"エラーが発生しました: {e}")
         return None
@@ -185,16 +187,17 @@ def main():
 
                     if ans_text:
                         st.markdown(ans_text)
-                        # 会話コンテキストを更新
-                    st.session_state.chat_history.append(types.Content(role="user", parts=[types.Part.from_text(text=final_prompt)]))
-                    st.session_state.chat_history.append(types.Content(role="model", parts=[types.Part.from_text(text=ans_text)]))
-
-        # 応答結果の保存と画面の更新
-        if ans_text:
-            st.session_state.display_history.append({"role": "assistant", "content": ans_text})
-            st.rerun()
-        else:
-            st.error("回答を生成できませんでした。もう一度時間を置いて質問してください。")
+                        # API利用履歴、表示用履歴、リロード
+                        st.session_state.chat_history.append(
+                            types.Content(role="user", parts=[types.Part.from_text(text=final_prompt)])
+                        )
+                        st.session_state.chat_history.append(
+                            types.Content(role="model", parts=[types.Part.from_text(text=ans_text)])
+                        )
+                        st.session_state.display_history.append(
+                            {"role": "assistant", "content": ans_text}
+                        )
+                        st.rerun()
 
 if __name__ == "__main__":
     main()
