@@ -24,6 +24,3 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 * **AI SDK**: Google Gen AI SDK (Gemini 2.5 Flash-lite)
 * **Visualization**: Plotly
 * **Data Handling**: Pandas, PyPDF
-
-## ⚙️ セットアップ
-```bash
