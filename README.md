@@ -4,7 +4,7 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 実務での運用を想定し、回答精度の可視化とエラーハンドリングに注力して開発しました。
 
 ## 🚀 デモ (Live Demo)
-[https://myportfolio-ldy3ycjsocnqzm5ydwomxp.streamlit.app/Evaluation]
+[https://myportfolio-ldy3ycjsocnqzm5ydwomxp.streamlit.app]
 ※ どなたでもブラウザから動作を確認いただけます。
 
 > [!IMPORTANT]
