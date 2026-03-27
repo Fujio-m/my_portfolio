@@ -36,3 +36,28 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 * **AI SDK**: Google Gen AI SDK (Gemini 2.5 Flash-lite)
 * **Visualization**: Plotly
 * **Data Handling**: Pandas, PyPDF
+
+## 📁 ディレクトリ構成
+
+本プロジェクトは、保守性と拡張性を考慮し、ロジック・データ・設定を分離した構成をとっています。
+
+```text
+.
+├── main.py                   # アプリのメインエントランス（ナビゲーション定義）
+├── pages/                    # 各機能ページ
+│   ├── 0_Home.py             # ポートフォリオ導入・開発背景
+│   ├── 1_Profile.py          # 自己紹介・スキル
+│   ├── 2_Architecture.py     # システム構成図・技術スタック
+│   ├── 3_Chatbot.py          # AIチャットボット本体（RAG実装）
+│   └── 4_Evaluation.py       # 精度評価・テストダッシュボード
+├── assets/                   # 設定・静的リソース
+│   ├── chatbot_data_flow.png # チャットボット機能のデータフロー図
+│   ├── system_prompt.md      # Gemini用システムプロンプト
+│   ├── usage_guide.md        # ユーザー向け利用ガイド
+│   └── config.json           # 外部フォームURL等の設定
+├── data/                     # 参照用ドキュメント
+│   ├── test_cases.csv        # テストケースのCSV
+│   └── kintai_rule.pdf       # 勤怠規定PDF（RAG参照元）
+├── img/                      # README用画像（スクリーンショット等）
+├── requirements.txt          # Python依存ライブラリ一覧
+└── README.md                 # 本ドキュメント
