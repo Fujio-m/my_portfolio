@@ -7,7 +7,7 @@ def main():
 
     with col1:
         st.subheader("基本情報")
-        st.write("名前: [あなたの名前]")
+        st.write("名前: Fujio-m(GitHub名)")
         st.write("年齢: 34歳")
         st.write("目標・キャリアビジョン")
         st.info("""

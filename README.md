@@ -4,8 +4,13 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 実務での運用を想定し、回答精度の可視化とエラーハンドリングに注力して開発しました。
 
 ## 🚀 デモ (Live Demo)
-[Streamlit Cloud の URL をここに貼る]
+[https://myportfolio-ldy3ycjsocnqzm5ydwomxp.streamlit.app/Evaluation]
 ※ どなたでもブラウザから動作を確認いただけます。
+
+> [!IMPORTANT]
+> **ℹ️ データについて**
+> 本アプリで使用している勤怠規定（PDF）およびテストケース（CSV）は、ポートフォリオ公開用に独自に作成した架空のデータです。
+> 実在の組織や機密情報とは一切関係ありません。
 
 ## 📸 動作イメージ
 ### チャット画面
