@@ -109,7 +109,8 @@ def render_chat_interface():
             if msg["role"] == "assistant" and i == len(st.session_state.display_history) - 1:
                 # 解決後の挨拶メッセージにはボタンを出さない判定
                 is_not_feedback_reply = "光栄です" not in msg["content"] and "申し訳ありません" not in msg["content"]
-                if i > 0 and is_not_feedback_reply:
+                # feedback_doneがTureならボタンを表示しない
+                if i > 0 and is_not_feedback_reply and not st.session_state.get("feedback_done", False):
                     feedback_selection = display_feedback_buttons(i)
 
     return selected_question, feedback_selection
@@ -207,6 +208,10 @@ def main():
 
     # --- 回答生成プロセス ---
     if final_prompt:
+        # 解決ボタン以外（新しい質問やFAQ）が入力されたら、フラグをリセットしてボタンを表示
+        if final_prompt not in ["解決しました", "解決してません"]:
+            st.session_state.feedback_done = False
+
         # ユーザー入力の反映
         st.session_state.display_history.append({"role": "user", "content": final_prompt})
         with st.chat_message("user"):
@@ -214,8 +219,11 @@ def main():
 
         # 入力内容に応じて分岐(フィードバック or AI回答)
         if final_prompt in ["解決しました", "解決してません"]:
+            st.session_state.feedback_done = True
             with st.chat_message("assistant"):
                 ans_text = handle_feedback(final_prompt, FORM_URL)
+                st.session_state.display_history.append({"role": "assistant", "content": ans_text})
+                st.rerun()
         else:
             with st.chat_message("assistant"):
                 with st.spinner("AIが規定を確認しています..."):
