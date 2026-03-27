@@ -1,8 +1,10 @@
+import os
+import json
 import streamlit as st
 from google import genai
 from google.genai import types
+from pathlib import Path
 from pypdf import PdfReader
-import os
 
 # --- 定数定義 ---
 PDF_PATH = "data/kintai_rule.pdf"
@@ -10,6 +12,32 @@ GUIDE_PATH = "assets/usage_guide.md"
 GEMINI_MODEL = "gemini-2.5-flash-lite"
 
 # ---  メソッド定義 (UIパーツ) ---
+def load_app_settings():
+    """
+    外部ファイルからシステムプロンプトと設定を読み込む関数
+    """
+    try:
+        # プロンプトの読み込み
+        prompt_path = Path("assets/system_prompt.md")
+        load_instruction = prompt_path.read_text(encoding="utf-8")
+
+        # 申請フォームの設定の読み込み
+        config_path = Path("assets/config.json")
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+
+        return load_instruction, config
+    
+    except FileNotFoundError as e:
+        st.error(f"設定ファイルが見つかりません: {e.filename}")
+        st.stop() # アプリの実行を安全に停止
+    except json.JSONDecodeError:
+        st.error("config.json の形式が正しくありません。")
+        st.stop()
+    except Exception as e:
+        st.error(f"予期せぬエラーが発生しました: {e}")
+        st.stop()
+
 @st.cache_data
 def load_markdown_file(file_path):
     """Markdownファイルを読み込む関数"""
@@ -86,21 +114,19 @@ def render_chat_interface():
 
     return selected_question, feedback_selection
 
-def handle_feedback(final_prompt):
+def handle_feedback(final_prompt, form_url):
     """解決/未解決ボタンに対するレスポンスを生成し、メッセージを返す"""
     if final_prompt == "解決しました":
         msg = "お役に立てて光栄です！また何かあればいつでもご質問ください。"
         st.success(msg)
     else:
-        form_url = st.secrets["FORM_URL"]
         msg = f"お役に立てず申し訳ありません。詳細な状況を添えて、[こちらの問い合わせフォーム]({form_url})への相談をご検討ください。"
         st.info(msg)
     return msg
 
-def get_gemini_answer(client, final_prompt, pdf_content):
+def get_gemini_answer(client, final_prompt, pdf_content, base_instruction):
     """Gemini APIから回答を取得する"""
     # システムプロンプトの構築
-    base_instruction = st.secrets["SYSTEM_INSTRUCTION"]
     final_instruction = base_instruction.replace("{{PDF_CONTENT}}", pdf_content)
 
     try:
@@ -125,9 +151,19 @@ def get_gemini_answer(client, final_prompt, pdf_content):
         return None
 
 def main():
-    # --- UI初期設定 ---
+    # 初期設定
     st.set_page_config(page_title="勤怠管理QAボット", layout="wide")
     st.title("🤖 勤怠管理Q&Aチャットボット")
+
+    # システムプロンプトと申請フォームの読み込み
+    if "config" not in st.session_state:
+        # load_app_settingsの中で try-except しているので安全
+        load_instruction, config = load_app_settings()
+        st.session_state.system_prompt = load_instruction
+        st.session_state.config = config
+
+    PROMPT = st.session_state.system_prompt
+    FORM_URL = st.session_state.config.get("google_form_url")
 
     # セッション状態の初期化
     if "chat_history" not in st.session_state:
@@ -179,11 +215,11 @@ def main():
         # 入力内容に応じて分岐(フィードバック or AI回答)
         if final_prompt in ["解決しました", "解決してません"]:
             with st.chat_message("assistant"):
-                ans_text = handle_feedback(final_prompt)
+                ans_text = handle_feedback(final_prompt, FORM_URL)
         else:
             with st.chat_message("assistant"):
                 with st.spinner("AIが規定を確認しています..."):
-                    ans_text = get_gemini_answer(client, final_prompt, pdf_content)
+                    ans_text = get_gemini_answer(client, final_prompt, pdf_content, PROMPT)
 
                     if ans_text:
                         st.markdown(ans_text)
