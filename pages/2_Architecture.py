@@ -67,7 +67,6 @@ def main():
         st.success("**🔐 セキュリティ & 信頼性**")
         st.markdown("""
         - **機密情報の完全分離**: `secrets.toml` でAPIキーを秘匿管理
-            - `.gitignore` により、社外秘の「就業規則PDF」を GitHub リポジトリに含めない運用を徹底。
         - **ハルシネーション対策**: 根拠をPDFに限定するプロンプト設計。
         """)
     with col_2:
