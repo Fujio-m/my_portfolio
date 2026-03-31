@@ -62,7 +62,7 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 │   ├── system_prompt.md      # Gemini API用システムプロンプト
 │   ├── usage_guide.md        # ユーザー向け利用ガイド
 │   ├── config.json           # 外部フォームURL等の設定
-│   └── workflow.svg           # 全体の業務フロー図
+│   └── workflow.svg          # 全体の業務フロー図
 ├── data/                     # 参照用ドキュメント
 │   ├── test_cases.csv        # テストケースのCSV
 │   └── kintai_rule.pdf       # 勤怠規定PDF（RAG参照元）
