@@ -23,7 +23,7 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 
 本アプリは「AIが回答して終わり」ではなく、解決しなかった課題を管理者がキャッチし、規定（PDF）をアップデートすることで回答精度を継続的に向上させる**運用サイクル**を想定して設計しています。
 
-![業務フロー図](img/workflow.svg)
+![業務フロー図](assets/workflow.svg)
 
 ## ✨ 主な機能
 * **高精度な RAG 実装**: PDF 資料（勤怠管理規定など）から関連情報を抽出し、根拠に基づいた回答を生成。
@@ -55,15 +55,17 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 │   ├── 1_Profile.py          # 自己紹介・スキル
 │   ├── 2_Architecture.py     # システム構成図・技術スタック
 │   ├── 3_Chatbot.py          # AIチャットボット本体（RAG実装）
-│   └── 4_Evaluation.py       # 精度評価・テストダッシュボード
+│   ├── 4_Evaluation.py       # 精度評価・テストダッシュボード
+│   └── 5_Operation.py        # 運用サイクル（PDF更新フロー）の紹介
 ├── assets/                   # 設定・静的リソース
-│   ├── chatbot_data_flow.png # チャットボット機能のデータフロー図
-│   ├── system_prompt.md      # Gemini用システムプロンプト
+│   ├── chatbot_sequence.png  # チャットボット機能のデータフロー図
+│   ├── system_prompt.md      # Gemini API用システムプロンプト
 │   ├── usage_guide.md        # ユーザー向け利用ガイド
-│   └── config.json           # 外部フォームURL等の設定
+│   ├── config.json           # 外部フォームURL等の設定
+│   └──workflow.svg           # 全体の業務フロー図
 ├── data/                     # 参照用ドキュメント
 │   ├── test_cases.csv        # テストケースのCSV
 │   └── kintai_rule.pdf       # 勤怠規定PDF（RAG参照元）
-├── img/                      # README用画像（スクリーンショット等）
+├── img/                      # スクリーンショットなどの画像
 ├── requirements.txt          # Python依存ライブラリ一覧
 └── README.md                 # 本ドキュメント
