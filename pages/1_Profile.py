@@ -1,5 +1,10 @@
 import streamlit as st
 
+# 1_Profile.py - プロフィール & 保有資格
+#
+# 【設計意図】
+# 自身の「自己紹介」と「保有資格」を表示することを目的とする
+
 def main():
     st.title("👤 自己紹介")
 
@@ -21,12 +26,12 @@ def main():
 
     with col2:
         st.subheader("保有資格")
-        
+
         with st.expander("🌐 クラウド・AI関連", expanded=True):
             st.write("- Azure AZ-900 / DP-900 / AI-900")
             st.write("- Microsoft PL-900")
             st.write("- Google Cloud Generative AI Leader")
-            
+
         with st.expander("🐍 開発・共通基盤"):
             st.write("- 基本情報技術者")
             st.write("- ITパスポート")

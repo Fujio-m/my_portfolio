@@ -3,6 +3,14 @@ import plotly.express as px
 import pandas as pd
 import os
 
+# 4_Evaluation.py - 精度評価とテストケース
+#
+# 【設計意図】
+# RAGシステムの「回答品質」を客観的に評価するためのテストデータと結果を提示。
+# ハルシネーションの有無、情報の網羅性、回答の正確性を検証し、
+# 開発者が「品質保証（QA）」の視点を持っていることを証明することを目的とする
+
+
 def load_test_data(csv_path):
     """CSVからデータを読み込み、DataFrameを返す"""
     if os.path.exists(csv_path):

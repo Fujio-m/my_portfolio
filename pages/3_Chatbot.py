@@ -6,6 +6,16 @@ from google.genai import types
 from pathlib import Path
 from pypdf import PdfReader
 
+# 3_Chatbot.py - - RAG & チャットUI
+#
+#【設計意図】
+# 1. RAG実装:
+#    就業規則PDFを抽出・注入し、Gemini APIによる「根拠ある回答」を実現。
+# 2. 実務的なUX設計:
+#    FAQボタン、解決/未解決フィードバック、外部フォーム連携を統合。
+# 3. エラーハンドリング:
+#    API制限(429)やサーバーダウン(503)を想定した例外処理を実装。
+
 # --- 定数定義 ---
 PDF_PATH = "data/kintai_rule.pdf"
 GUIDE_PATH = "assets/usage_guide.md"

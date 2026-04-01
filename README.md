@@ -1,10 +1,10 @@
 # 🤖 社内規定 RAG チャットボット (Gemini API)
 
 Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を生成する RAG（検索拡張生成）チャットボットです。
-実務での運用を想定し、回答精度の可視化とエラーハンドリングに注力して開発しました。
+実務での運用を想定し、「回答精度の可視化」と「PDF更新による継続的な改善サイクル（PDCA）」に注力して開発しました。
 
 ## 🚀 デモ (Live Demo)
-[https://myportfolio-ldy3ycjsocnqzm5ydwomxp.streamlit.app]
+[https://myportfolio-fujio-chatbot.streamlit.app/]
 ※ どなたでもブラウザから動作を確認いただけます。
 
 > [!IMPORTANT]
