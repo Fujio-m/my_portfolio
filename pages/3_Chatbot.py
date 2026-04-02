@@ -24,7 +24,16 @@ GEMINI_MODEL = "gemini-2.5-flash-lite"
 # ---  メソッド定義 (UIパーツ) ---
 def load_app_settings():
     """
-    外部ファイルからシステムプロンプトと設定を読み込む関数
+    外部ファイルからシステムプロンプトとアプリケーション設定を読み込む。
+
+    Returns:
+        tuple: (load_instruction, config)
+            - load_instruction (str): AIの振る舞いを定義するシステムプロンプト。
+            - config (dict): 問い合わせフォームのURL等を含む設定データ。
+
+    Raises:
+        FileNotFoundError: 設定ファイルが存在しない場合。
+        json.JSONDecodeError: JSONの構文エラーがある場合。
     """
     try:
         # プロンプトの読み込み
@@ -50,7 +59,16 @@ def load_app_settings():
 
 @st.cache_data
 def load_markdown_file(file_path):
-    """Markdownファイルを読み込む関数"""
+    """
+    指定されたパスのMarkdownファイルを読み込み、テキストとして返す。
+    Streamlitのキャッシュを利用し、再読み込みの負荷を軽減する。
+
+    Args:
+        file_path (str/Path): 読み込むMarkdownファイルのパス。
+
+    Returns:
+        str: ファイルの内容。見つからない場合はエラーメッセージを返す。
+    """
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read()
@@ -58,7 +76,12 @@ def load_markdown_file(file_path):
         return "⚠️ ガイドファイルが見つかりませんでした。"
 
 def display_faq_buttons():
-    """挨拶メッセージ直下のFAQボタンを表示し、選択された質問を返す"""
+    """
+    チャット開始時に表示するFAQ（よくある質問）ボタン群を生成する。
+
+    Returns:
+        str: ユーザーがクリックしたボタンに対応する質問テキスト。クリックがない場合はNone。
+    """
     st.caption("💡 よくある質問例：")
     # 縦に並べる。keyを固定することで、再実行されてもボタンの状態が維持されます。
     if st.button("🕒 時差出勤の昼休憩の時間は？", key="btn_faq_1"):
@@ -72,8 +95,15 @@ def display_faq_buttons():
     return None
 
 def display_feedback_buttons(idx):
-    """AI回答の下に解決ボタンを縦並びで表示し、ステータスを管理する"""
-    # まだ未回答ならボタンを表示
+    """
+    AIの回答後に表示する「解決・未解決」フィードバックボタンを生成する。
+
+    Args:
+        idx (int): ボタンのユニーク性を担保するためのメッセージインデックス。
+
+    Returns:
+        str: フィードバックの結果テキスト（解決/未解決）。未選択の場合はNone。
+    """
     st.divider()
     st.write("💡 **解決しましたか？**")
 
@@ -86,7 +116,15 @@ def display_feedback_buttons(idx):
 # --- メソッド定義 (データ処理・API) ---
 @st.cache_resource
 def get_pdf_text(pdf_path):
-    """PDFからテキストを抽出してキャッシュする"""
+    """
+    PDFファイルから全テキストを抽出し、Streamlitのリソースキャッシュに保存する。
+
+    Args:
+        pdf_path (str): 読み込み対象のPDFファイルパス。
+
+    Returns:
+        str: 抽出されたテキスト。失敗した場合はNone。
+    """
     try:
         text = ""
         reader = PdfReader(pdf_path)
@@ -99,11 +137,23 @@ def get_pdf_text(pdf_path):
 
 @st.cache_resource
 def get_ai_client():
-    """最新のGoogle Gen AIクライアントを初期化"""
+    """
+    Google Gen AI クライアントを初期化し、キャッシュとして保持する。
+
+    Returns:
+        genai.Client: 初期化済みのAIクライアント。
+    """
     return genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 def render_chat_interface():
-    """チャット履歴と各種ボタンを表示し、ユーザーの選択(FAQ/FB)を返す"""
+    """
+    現在のチャット履歴に基づき、メッセージおよびUIコンポーネントを画面に描画する。
+
+    Returns:
+        tuple: (selected_question, feedback_selection)
+            - selected_question (str): FAQボタンで選択された質問。
+            - feedback_selection (str): フィードバックボタンで選択された内容。
+    """
     selected_question = None
     feedback_selection = None
 
@@ -126,7 +176,16 @@ def render_chat_interface():
     return selected_question, feedback_selection
 
 def handle_feedback(final_prompt, form_url):
-    """解決/未解決ボタンに対するレスポンスを生成し、メッセージを返す"""
+    """
+    ユーザーからのフィードバックに対し、適切な案内メッセージを生成する。
+
+    Args:
+        final_prompt (str): フィードバック内容（解決/未解決）。
+        form_url (str): 未解決時に案内するGoogleフォームのURL。
+
+    Returns:
+        str: システムが返信として表示するメッセージ。
+    """
     if final_prompt == "解決しました":
         msg = "お役に立てて光栄です！また何かあればいつでもご質問ください。"
         st.success(msg)
@@ -136,8 +195,19 @@ def handle_feedback(final_prompt, form_url):
     return msg
 
 def get_gemini_answer(client, final_prompt, pdf_content, base_instruction):
-    """Gemini APIから回答を取得する"""
-    # システムプロンプトの構築
+    """
+    Gemini APIを呼び出し、PDFの内容に基づいたRAG（検索拡張生成）回答を取得する。
+
+    Args:
+        client (genai.Client): AIクライアントインスタンス。
+        final_prompt (str): ユーザーの質問内容。
+        pdf_content (str): 参照元となるPDFのテキスト。
+        base_instruction (str): システムプロンプトのテンプレート。
+
+    Returns:
+        str: 生成されたAIの回答テキスト。エラー時はNoneを返す。
+    """
+    # システムプロンプトにPDF内容を埋め込み
     final_instruction = base_instruction.replace("{{PDF_CONTENT}}", pdf_content)
 
     try:

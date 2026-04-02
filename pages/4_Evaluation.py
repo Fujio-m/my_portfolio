@@ -12,13 +12,26 @@ import os
 
 
 def load_test_data(csv_path):
-    """CSVからデータを読み込み、DataFrameを返す"""
+    """
+    指定されたCSVパスからテストケースデータを読み込む。
+
+    Args:
+        csv_path (str): テスト結果が格納されたCSVファイルのパス。
+
+    Returns:
+        pd.DataFrame: 読み込まれたデータフレーム。ファイルが存在しない場合はNoneを返す。
+    """
     if os.path.exists(csv_path):
         return pd.read_csv(csv_path, encoding="utf-8-sig")
     return None
 
 def display_summary_metrics(df):
-    """合格率など計算してメトリクスを表示する"""
+    """
+    テスト結果の要約統計（合格率、件数など）を計算し、メトリクスとチャートを表示する。
+
+    Args:
+        df (pd.DataFrame): 全テストケースのデータフレーム。
+    """
     total_cases = len(df)
     pass_cases = len(df[df["判定"].str.contains("✅", na=False)])
     fail_cases = total_cases - pass_cases
@@ -69,7 +82,13 @@ def display_summary_metrics(df):
 
 def get_sidebar_filters(df):
     """
-    サイドバーにフィルターを表示し、選択された条件で絞り込んだデータフレームを返す
+    サイドバーにフィルタUIを表示し、ユーザーの選択に基づいてデータを絞り込む。
+
+    Args:
+        df (pd.DataFrame): 元のデータフレーム。
+
+    Returns:
+        pd.DataFrame: フィルタ適用後のデータフレーム。
     """
     st.sidebar.header("🔍 表示フィルター")
 
@@ -85,7 +104,12 @@ def get_sidebar_filters(df):
     return filtered_df
 
 def display_test_details(df):
-    """詳細結果のテーブルを表示する"""
+    """
+    テストケースの詳細結果を、カスタマイズされたデータフレーム形式で表示する。
+
+    Args:
+        df (pd.DataFrame): 表示対象の（フィルタ済みの）データフレーム。
+    """
     st.subheader("📋 テストケース詳細")
     # 備考欄のNoneを空文字に置き換える（表示を綺麗にするため）
     df["備考"] = df["備考"].fillna("")
@@ -106,7 +130,7 @@ def display_test_details(df):
 
 def main():
     st.title(" 🧪精度評価・テスト結果")
-    st.markdown("""本アプリケーションの回答制度を検証した結果です。""")
+    st.markdown("""本アプリケーションの回答精度を検証した結果です。""")
 
     CSV_PATH = os.path.join("data", "test_cases.csv")
     df = load_test_data(CSV_PATH)
