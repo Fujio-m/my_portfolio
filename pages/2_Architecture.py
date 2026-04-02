@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from utils.json_loader import get_url
 
 # 2_Architecture.py - 設計思想とシステム構造
 #
@@ -19,13 +20,14 @@ def main():
     st.divider()
     st.header("1. チャットボットのシーケンス図 ")
 
-    # 画像のパス
+    # 画像のパスと使用ツールのURL
     IMAGE_PATH = os.path.join("assets", "chatbot_sequence.png")
+    MERMAID_URL = get_url("mermaid_url")
 
     # 画像が存在する場合のみ表示（エラー防止）
     if os.path.exists(IMAGE_PATH):
         st.image(IMAGE_PATH,
-                caption="勤怠管理Q&Aチャットボット シーケンス図",
+                caption=f"勤怠管理Q&Aチャットボット シーケンス図 【使用ツール:[mermaid]({MERMAID_URL})】",
                 width='stretch'
                 )
 
