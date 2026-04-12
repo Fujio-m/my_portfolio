@@ -26,9 +26,11 @@ pg = st.navigation({
     ],
     "プロジェクト": [
         st.Page("pages/2_Architecture.py", title="システム構成図", icon="🏗️"),
-        st.Page("pages/3_Chatbot.py", title="AIチャットボット", icon="🤖"),
         st.Page("pages/4_Evaluation.py", title="精度評価・テスト", icon="🧪"),
-        st.Page("pages/5_Operation.py", title="PDF更新サイクル", icon="🔄")
+        st.Page("pages/5_Operation.py", title="PDF更新サイクル", icon="🔄"),
+    ],
+    "成果物":[
+        st.Page("pages/3_Chatbot.py", title="AIチャットボット", icon="🤖")
     ]
 })
 
