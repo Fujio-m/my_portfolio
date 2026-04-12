@@ -78,7 +78,7 @@ def show_pdf_dialog(pdf_path):
         st.write("AIの回答根拠となった規定の原本です。")
 
         # PDFの表示
-        pdf_viewer(input=pdf_bytes, width=700)
+        pdf_viewer(input=pdf_bytes)
 
     except Exception as e:
         st.error(f"PDFの表示中にエラーが発生しました: {e}")
