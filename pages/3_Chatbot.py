@@ -1,11 +1,11 @@
 import os
 import json
-import base64
 import streamlit as st
 from google import genai
 from google.genai import types
 from pathlib import Path
 from pypdf import PdfReader
+from streamlit_pdf_viewer import pdf_viewer
 
 # 3_Chatbot.py - - RAG & チャットUI
 #
@@ -64,30 +64,36 @@ def show_pdf_dialog(pdf_path):
     ポップアップダイアログ内にPDFを表示する。
 
     Args:
-        pdf_path (str/Path): 表示対象のPDFファイルパス。
+        pdf_path (str/Path): 読み込むPDFファイルのパス。
     """
     try:
-        with open(pdf_path, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        if not os.path.exists(pdf_path):
+            st.error("表示するPDFファイルが見つかりません。")
+            return
 
-        # PDFを埋め込むためのHTML (ブラウザのPDFビューアーを利用)
-        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></iframe>'
-        st.markdown(pdf_display, unsafe_allow_html=True)
+        # PDFの読み込み
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+        st.write("AIの回答根拠となった規定の原本です。")
+
+        # PDFの表示
+        pdf_viewer(input=pdf_bytes, width=700)
 
     except Exception as e:
         st.error(f"PDFの表示中にエラーが発生しました: {e}")
 
 def display_sidebar_pdf_trigger(pdf_path):
     """
-    サイドバーにPDF表示用ボタンを配置する。
+    サイドバーにポップアップでPDFを表示させるボタンを設定
 
     Args:
-        pdf_path (str/Path): 参照元となるPDFのファイルパス。
+        pdf_path (str/Path): 読み込むPDFファイルのパス。
     """
     with st.sidebar:
         st.divider()
         st.subheader("📚 エビデンス確認")
-        st.info("AIが回答の根拠としている社内規定の原本を確認できます。")
+        st.info("AI回答の根拠となっている社内規定の原本を確認できます。")
         if st.button("📄 PDF原本を開く", use_container_width=True):
             show_pdf_dialog(pdf_path)
 
@@ -308,7 +314,7 @@ def main():
     if pdf_content is None:
         st.error("規定PDFの読み込みに失敗しました。ファイルが破損しているか、画像のみの可能性があります。")
         return
-    
+
     # --- サイドバーに原本確認ボタンを設置 ---
     display_sidebar_pdf_trigger(PDF_PATH)
 
