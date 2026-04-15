@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.responsive import inject_responsive_css, responsive_title, responsive_header
 
 # 1_Profile.py - プロフィール & 保有資格
 #
@@ -6,26 +7,27 @@ import streamlit as st
 # 自身の「自己紹介」と「保有資格」を表示することを目的とする
 
 def main():
-    st.title("👤 自己紹介")
+    inject_responsive_css()
+    responsive_title("👤 自己紹介")
 
     col1, col2 = st.columns([1.3, 1])
 
     with col1:
-        st.subheader("基本情報")
+        responsive_header("基本情報")
         st.write("名前: Fujio-m(GitHub名)")
         st.write("年齢: 34歳")
         st.write("目標・キャリアビジョン")
         st.info("""
-            **IT技術による「現場の課題解決」のスペシャリストへ**
+            **ユーザーの問題を解決できる人材になるために**
 
-            AI利活用や業務自動化を通じて、組織の生産性向上に直結する貢献を目指しています。
+            AIの活用や業務自動化を通じて、チームの方々の生産性向上に貢献を目指しています。
 
-            開発スキルに加え、最新の生成AI知見と実務効率化の視点を掛け合わせ、
-            「社員がよりクリエイティブな仕事に集中できる環境」を構築したいと考えています。
+            開発スキルに加え、最新の生成AIと実務効率化の視点を掛け合わせ、
+            「小さなストレスを解消して業務に集中できる環境」を目指したいと考えています。
             """)
 
     with col2:
-        st.subheader("保有資格")
+        responsive_header("保有資格")
 
         with st.expander("🌐 クラウド・AI関連", expanded=True):
             st.write("- Azure AZ-900 / DP-900 / AI-900")

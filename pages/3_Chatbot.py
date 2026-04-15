@@ -6,6 +6,8 @@ from google.genai import types
 from pathlib import Path
 from pypdf import PdfReader
 from streamlit_pdf_viewer import pdf_viewer
+from utils.responsive import inject_responsive_css, responsive_title, responsive_header
+
 
 # 3_Chatbot.py - - RAG & チャットUI
 #
@@ -58,7 +60,7 @@ def load_app_settings():
         st.error(f"予期せぬエラーが発生しました: {e}")
         st.stop()
 
-@st.dialog("📄 参照エビデンス (社内規定PDF)", width="large")
+@st.dialog("📄 勤怠ルールpdf")
 def show_pdf_dialog(pdf_path):
     """
     ポップアップダイアログ内にPDFを表示する。
@@ -75,7 +77,7 @@ def show_pdf_dialog(pdf_path):
         with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
 
-        st.write("AIの回答根拠となった規定の原本です。")
+        st.write("AIの回答根拠となる規定の原本PDFです")
 
         # PDFの表示
         pdf_viewer(input=pdf_bytes)
@@ -93,7 +95,7 @@ def display_sidebar_pdf_trigger(pdf_path):
     with st.sidebar:
         st.divider()
         st.subheader("📚 エビデンス確認")
-        st.info("AI回答の根拠となっている社内規定の原本を確認できます。")
+        st.info("AI回答の根拠となっている社内規定の原本PDFを確認できます")
         if st.button("📄 PDF原本を開く", use_container_width=True):
             show_pdf_dialog(pdf_path)
 
@@ -273,12 +275,12 @@ def get_gemini_answer(client, final_prompt, pdf_content, base_instruction):
 
 def main():
     # 初期設定
+    inject_responsive_css()
     st.set_page_config(page_title="勤怠管理QAボット", layout="wide")
-    st.title("🤖 勤怠管理Q&Aチャットボット")
+    responsive_title("🤖 勤怠管理Q&Aチャットボット")
 
     # システムプロンプトと申請フォームの読み込み
     if "config" not in st.session_state:
-        # load_app_settingsの中で try-except しているので安全
         load_instruction, config = load_app_settings()
         st.session_state.system_prompt = load_instruction
         st.session_state.config = config

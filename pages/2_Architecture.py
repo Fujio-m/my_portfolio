@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 from utils.json_loader import get_url
+from utils.responsive import inject_responsive_css, responsive_title, responsive_header
+
 
 # 2_Architecture.py - 設計思想とシステム構造
 #
@@ -11,14 +13,15 @@ from utils.json_loader import get_url
 
 
 def main():
-    st.title("🏗️ システム構成図 & 技術スタック")
+    inject_responsive_css()
+    responsive_title("🏗️ システム構成図 & 技術スタック")
     st.markdown("""
     * 本アプリケーションの採用している技術スタックについて解説します。
     * 実務での運用を想定し、セキュリティ(認証情報の隠蔽)とAI技術(RAG)を組み合わせた設計を行えるように設計しています。
     """)
 
     st.divider()
-    st.header("1. チャットボットのシーケンス図 ")
+    responsive_header("1. チャットボットのシーケンス図 ")
 
     # 画像のパスと使用ツールのURL
     IMAGE_PATH = os.path.join("assets", "chatbot_sequence.png")
@@ -58,8 +61,8 @@ def main():
 
     st.divider()
 
-    st.header("2. 技術スタック & 選定理由")
-    st.subheader("🛠️ 使用フレームワーク・ライブラリ")
+    responsive_header("2. 技術スタック & 選定理由")
+    responsive_header("🛠️ 使用フレームワーク・ライブラリ")
     st.markdown("""
     -   **Language**: Python 3.13.2
     -   **Web Framework**: **Streamlit 1.55.0**
@@ -70,7 +73,7 @@ def main():
         -   （選定理由: 純Python製で依存が少なく、安定してテキスト抽出を行えるため）
     """)
 
-    st.subheader("🛠️ 技術選定の理由")
+    responsive_header("🛠️ 技術選定の理由")
     col_left, col_right = st.columns(2)
     with col_left:
         st.success("**なぜ Google Gemini (API) なのか？**")
@@ -90,7 +93,7 @@ def main():
             - Pythonの豊富なライブラリを活用し、将来的なデータ分析機能の追加や、Google Sheets等とのAPI連携を容易にするため。
         """)
 
-    st.subheader("💡 設計におけるこだわりポイント")
+    responsive_header("💡 設計におけるこだわりポイント")
     col_1, col_2 = st.columns(2)
 
     with col_1:

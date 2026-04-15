@@ -2,6 +2,8 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import os
+from utils.responsive import inject_responsive_css, responsive_title, responsive_header
+
 
 # 4_Evaluation.py - 精度評価とテストケース
 #
@@ -40,7 +42,7 @@ def display_summary_metrics(df):
     col_metrics, col_chart = st.columns([1, 1])
 
     with col_metrics:
-        st.subheader("📊 統計情報")
+        responsive_header("📊 統計情報")
         col1, col2 = st.columns(2)
         col1.metric("総テストケース数", f"{total_cases}件")
         col2.metric("正解率", f"{pass_rate}%")
@@ -129,7 +131,8 @@ def display_test_details(df):
     )
 
 def main():
-    st.title(" 🧪精度評価・テスト結果")
+    inject_responsive_css()
+    responsive_title(" 🧪精度評価・テスト結果")
     st.markdown("""本アプリケーションの回答精度を検証した結果です。""")
 
     CSV_PATH = os.path.join("data", "test_cases.csv")
