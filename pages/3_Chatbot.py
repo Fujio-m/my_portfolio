@@ -96,7 +96,7 @@ def display_sidebar_pdf_trigger(pdf_path):
         st.divider()
         st.subheader("📚 エビデンス確認")
         st.info("AI回答の根拠となっている社内規定の原本PDFを確認できます")
-        if st.button("📄 PDF原本を開く", use_container_width=True):
+        if st.button("📄 PDF原本を開く", width="stretch"):
             show_pdf_dialog(pdf_path)
 
 @st.cache_data

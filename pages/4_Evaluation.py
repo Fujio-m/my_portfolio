@@ -66,7 +66,7 @@ def display_summary_metrics(df):
             chart_data,
             values="件数",
             names="判定",
-            hole=0.4, # ドーナツチャートにするとよりモダンに見えます
+            hole=0.4,
             color="判定",
             color_discrete_map={
                 '✅ 合格': '#2ecc71',
@@ -80,7 +80,7 @@ def display_summary_metrics(df):
             height=250,
             showlegend=True
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 def get_sidebar_filters(df):
     """
@@ -113,12 +113,19 @@ def display_test_details(df):
         df (pd.DataFrame): 表示対象の（フィルタ済みの）データフレーム。
     """
     st.subheader("📋 テストケース詳細")
-    # 備考欄のNoneを空文字に置き換える（表示を綺麗にするため）
+    with st.expander("🔍 表の操作方法について"):
+        st.markdown("""
+        - **絞り込み**: 右上のカラム選択ボタンで表示する列を限定できます。
+        - **並び替え**: ヘッダーをクリックすると昇順・降順にソートできます。
+        - **検索**: 表の中の特定の文字を検索できます。
+        """)
+
+    # 備考欄のNoneを空文字に置き換える
     df["備考"] = df["備考"].fillna("")
 
     st.dataframe(df,
-        use_container_width=True,
-        height=600,
+        width="stretch",
+        height=400,
         hide_index=True,
         column_config={
             "カテゴリ": st.column_config.TextColumn("カテゴリ", width=100),
