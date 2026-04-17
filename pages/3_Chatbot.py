@@ -277,7 +277,7 @@ def main():
     # 初期設定
     inject_responsive_css()
     st.set_page_config(page_title="勤怠管理QAボット", layout="wide")
-    responsive_title("🤖 勤怠管理Q&Aチャットボット")
+    responsive_title("勤怠管理Q&Aチャットボット")
 
     # システムプロンプトと申請フォームの読み込み
     if "config" not in st.session_state or "system_prompt" not in st.session_state:

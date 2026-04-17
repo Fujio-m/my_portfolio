@@ -13,7 +13,7 @@ from utils.responsive import inject_responsive_css, responsive_title, responsive
 
 def main():
     inject_responsive_css()
-    responsive_title("🔄 未解決質問対策のPDF更新サイクル")
+    responsive_title("未解決質問対策のPDF更新サイクル")
     st.caption("チャットボットが答えられなかった内容を担当者にエスカレーションし改善する設計")
 
     # --- 導入 ---

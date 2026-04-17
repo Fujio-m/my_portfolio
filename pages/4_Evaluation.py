@@ -139,7 +139,7 @@ def display_test_details(df):
 
 def main():
     inject_responsive_css()
-    responsive_title(" 🧪精度評価・テスト結果")
+    responsive_title("精度評価・テスト結果")
     st.markdown("""本アプリケーションの回答精度を検証した結果です。""")
 
     CSV_PATH = os.path.join("data", "test_cases.csv")

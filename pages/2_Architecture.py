@@ -14,7 +14,7 @@ from utils.responsive import inject_responsive_css, responsive_title, responsive
 
 def main():
     inject_responsive_css()
-    responsive_title("🏗️ システム構成図 & 技術スタック")
+    responsive_title("システム構成図 & 技術スタック")
     st.markdown("""
     本アプリケーションのチャットボットの構成図と使用した技術スタックについて解説します。
     """)

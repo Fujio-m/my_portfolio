@@ -8,7 +8,7 @@ from utils.responsive import inject_responsive_css, responsive_title, responsive
 
 def main():
     inject_responsive_css()
-    responsive_title("👤 自己紹介")
+    responsive_title("自己紹介")
 
     col1, col2 = st.columns([1.3, 1])
 
