@@ -280,13 +280,14 @@ def main():
     responsive_title("🤖 勤怠管理Q&Aチャットボット")
 
     # システムプロンプトと申請フォームの読み込み
-    if "config" not in st.session_state:
+    if "config" not in st.session_state or "system_prompt" not in st.session_state:
         load_instruction, config = load_app_settings()
         st.session_state.system_prompt = load_instruction
         st.session_state.config = config
 
-    PROMPT = st.session_state.system_prompt
-    FORM_URL = st.session_state.config.get("google_form_url")
+    PROMPT = st.session_state.get("system_prompt", "あなたは優秀なアシスタントです。")
+    config_data = st.session_state.get("config", {})
+    FORM_URL = config_data.get("google_form_url", "")
 
     # セッション状態の初期化
     if "chat_history" not in st.session_state:

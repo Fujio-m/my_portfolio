@@ -9,7 +9,8 @@ from utils.responsive import inject_responsive_css, responsive_title, responsive
 
 def main():
     inject_responsive_css()
-    responsive_title("勤怠管理AIチャットボット(ポートフォリオ)")
+    responsive_title("勤怠管理AIチャットボット")
+    responsive_header("(ポートフォリオ)")
     st.divider()
 
     # 開発の動機

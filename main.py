@@ -24,12 +24,12 @@ pg = st.navigation({
         st.Page("pages/0_Home.py", title="ホーム", icon="🏠", default=True),
         st.Page("pages/1_Profile.py", title="自己紹介", icon="👤")
     ],
-    "プロジェクト": [
+    "システム概要と精度評価": [
         st.Page("pages/2_Architecture.py", title="システム構成図", icon="🏗️"),
         st.Page("pages/4_Evaluation.py", title="精度評価・テスト", icon="🧪"),
         st.Page("pages/5_Operation.py", title="PDF更新サイクル", icon="🔄"),
     ],
-    "成果物":[
+    "アプリケーション本体":[
         st.Page("pages/3_Chatbot.py", title="AIチャットボット", icon="🤖")
     ]
 })

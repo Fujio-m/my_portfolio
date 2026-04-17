@@ -63,13 +63,17 @@ def main():
     responsive_header("2. 技術スタック & 選定理由")
     responsive_header("🛠️ 使用フレームワーク・ライブラリ")
     st.markdown("""
-    -   **Language**: Python 3.13.2
-    -   **Web Framework**: **Streamlit 1.55.0**
-    -   **AI Engine**: **Gemini 2.5 Flash-lite** (`google-genai 1.68.0`)
-    -   **PDF Processing**: **pypdf 6.9.2**
-    """)
+        | カテゴリ | 技術 | 採用理由 |
+        | :--- | :--- | :--- |
+        | 開発言語  | Python 3.13.2 | AIライブラリが豊富なため |
+        |  フレームワーク | Streamlit 1.55.0 | 素早く簡易的にAIモデル開発ができるため |
+        |  AIモデル | Gemini 2.5 Flash-lite| 無料枠で最新かつ低コストで運用が可能なため |
+        |  データ可視化 | Plotly | 動的なグラフが表示可能なため |
+        |  データ処理 | Pandas | CSVの統計処理に必要なため |
+        |   PDF処理  | PyPDF | PDFテキスト抽出機能に必要なため |
+        """)
 
-    responsive_header("🛠️ 技術選定の理由")
+    responsive_header("🛠️ 技術選定の詳細理由")
     col_left, col_right = st.columns(2)
     with col_left:
         st.success("**なぜ Google Gemini (API) なのか？**")
@@ -77,7 +81,7 @@ def main():
         - **コストパフォーマンスの最適化**:
             - プロトタイプ開発において、AIモデルを低コスト（現在はGoogle AI Studioの無料枠）で運用できるため。
         - **実務移行時の高い安全性**:
-            - 現在は開発用APIを使用していますが、実務運用では **Vertex AI Studio** 経由への切り替えを想定。入力データがモデルの学習に利用されない環境を構築し、社外秘である勤怠ルールの情報漏洩を確実に防止するため。
+            - 現在は無料枠のAPIを使用していますが、実務運用では **Vertex AI Studio** 経由への切り替えを想定。入力データがモデルの学習に利用されない環境を構築し、社外秘である勤怠ルールの情報漏洩を確実に防止するため。
         """)
 
     with col_right:
