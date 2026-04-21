@@ -4,7 +4,6 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 実務での運用を想定し、「回答精度の可視化」と「PDF更新による継続的な改善サイクル」を意識してこのポートフォリオの開発しました。
 
 ## URL
-[https://myportfolio-fujio-chatbot.streamlit.app/]
  [https://myportfolio-fujio-chatbot.streamlit.app/](https://myportfolio-fujio-chatbot.streamlit.app/)
 * どなたでもブラウザから動作を確認いただけます。
 * レスポンシブデザイン設計のため、モバイル端末でも閲覧できます。
@@ -66,8 +65,6 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 | カテゴリ | 技術 | 採用理由 |
 | :--- | :--- | :--- |
 | 開発言語  | Python 3.13.2 | AIライブラリが豊富なため |
-|  フレームワーク | Streamlit 1.55.0 | 素早く簡易的にAIモデル開発ができるため |
-|  AIモデル | Gemini 2.5 Flash-lite| 無料枠で最新かつ低コストで運用が可能なため |
 |  フレームワーク | Streamlit 1.42.0 | 素早く簡易的にAIモデル開発ができるため |
 |  AIモデル | Gemini 2.0 Flash-lite| 無料枠で最新かつ低コストで運用が可能なため |
 |  データ可視化 | Plotly | 動的なグラフが表示可能なため |
