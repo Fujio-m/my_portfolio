@@ -43,13 +43,13 @@ def display_summary_metrics(df):
 
     with col_metrics:
         responsive_header("📊 統計情報")
-        col1, col2 = st.columns(2)
-        col1.metric("総テストケース数", f"{total_cases}件")
-        col2.metric("正解率", f"{pass_rate}%")
+        m_col1, m_col2 = st.columns(2)
+        m_col1.metric("総テストケース数", f"{total_cases}件")
+        m_col2.metric("正解率", f"{pass_rate}%")
 
-        col3, col4 = st.columns(2)
-        col3.metric("合格（✅）", f"{pass_cases}件", delta=None)
-        col4.metric("不合格（❌）", f"{fail_cases}件", delta=f"-{fail_cases}" if fail_cases > 0 else None, delta_color="inverse")
+        m_col3, m_col4 = st.columns(2)
+        m_col3.metric("合格（✅）", f"{pass_cases}件")
+        m_col4.metric("不合格（❌）", f"{fail_cases}件", delta=f"-{fail_cases}" if fail_cases > 0 else None, delta_color="inverse")
 
     with col_chart:
         chart_data = df["判定"].value_counts().reset_index()
@@ -80,7 +80,7 @@ def display_summary_metrics(df):
             height=250,
             showlegend=True
         )
-        st.plotly_chart(fig, width="stretch")
+        st.plotly_chart(fig, width='stretch')
 
 def get_sidebar_filters(df):
     """
@@ -112,30 +112,54 @@ def display_test_details(df):
     Args:
         df (pd.DataFrame): 表示対象の（フィルタ済みの）データフレーム。
     """
-    st.subheader("📋 テストケース詳細")
-    with st.expander("🔍 表の操作方法について"):
-        st.markdown("""
-        - **絞り込み**: 右上のカラム選択ボタンで表示する列を限定できます。
-        - **並び替え**: ヘッダーをクリックすると昇順・降順にソートできます。
-        - **検索**: 表の中の特定の文字を検索できます。
-        """)
-
     # 備考欄のNoneを空文字に置き換える
     df["備考"] = df["備考"].fillna("")
 
-    st.dataframe(df,
-        width="stretch",
-        height=400,
-        hide_index=True,
-        column_config={
-            "カテゴリ": st.column_config.TextColumn("カテゴリ", width=100),
-            "判定": st.column_config.TextColumn("判定", width=50),
-            "質問内容": st.column_config.TextColumn("質問内容", width=400),
-            "期待される回答（合格基準）": st.column_config.TextColumn("期待される回答", width=350),
-            "実際の回答": st.column_config.TextColumn("実際の回答", width=1200),
-            "備考": st.column_config.TextColumn("備考", width=550),
-        }
-    )
+    tab1, tab2 = st.tabs(["📱 テストケース", "📊 一覧テーブル", ])
+
+    with tab1:
+        st.info("💡 各テストケースの詳細内容を確認できます。")
+        for _, row in df.iterrows():
+            label = f"{row['判定']} | {row['カテゴリ']} : {row['質問内容'][:30]}..."
+
+            with st.expander(label):
+                st.markdown(f"**【質問内容】**\n{row['質問内容']}")
+                st.divider()
+
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.success("**期待される回答**")
+                    st.write(row['期待される回答（合格基準）'])
+                with col_b:
+                    # 判定に応じて色を変える
+                    if "✅" in row['判定']:
+                        st.info("**実際の回答**")
+                    elif "❌" in row['判定']:
+                        st.error("**実際の回答**")
+                    else:
+                        st.warning("**実際の回答**")
+                    st.write(row['実際の回答'])
+
+                if row['備考']:
+                    st.divider()
+                    st.caption(f"📝 備考: {row['備考']}")
+
+
+    with tab2:
+        st.info("💡テストケースを表形式で確認できます。(スクロール可能)")
+        st.dataframe(df,
+            width='stretch',
+            height=400,
+            hide_index=True,
+            column_config={
+                "カテゴリ": st.column_config.TextColumn("カテゴリ", width=100),
+                "判定": st.column_config.TextColumn("判定", width=50),
+                "質問内容": st.column_config.TextColumn("質問内容", width=400),
+                "期待される回答（合格基準）": st.column_config.TextColumn("期待される回答", width=350),
+                "実際の回答": st.column_config.TextColumn("実際の回答", width=1200),
+                "備考": st.column_config.TextColumn("備考", width=550),
+            }
+        )
 
 def main():
     inject_responsive_css()
