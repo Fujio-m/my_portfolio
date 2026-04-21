@@ -5,6 +5,7 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 
 ## URL
 [https://myportfolio-fujio-chatbot.streamlit.app/]
+ [https://myportfolio-fujio-chatbot.streamlit.app/](https://myportfolio-fujio-chatbot.streamlit.app/)
 * どなたでもブラウザから動作を確認いただけます。
 * レスポンシブデザイン設計のため、モバイル端末でも閲覧できます。
 
@@ -34,6 +35,23 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 
 ![業務フロー図](assets/workflow.svg)
 
+## セットアップ方法
+
+ローカル環境で実行する場合は以下の手順に従ってください。
+
+1. リポジトリをクローン
+2. 仮想環境の作成とライブラリのインストール
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Windowsの場合は venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. `.streamlit/secrets.toml` を作成し、Gemini APIキーを設定
+4. アプリケーションの起動
+   ```bash
+   streamlit run main.py
+   ```
+
 ## 主な機能
 * **RAG 実装**: PDF 資料（勤怠ルール）から関連情報を抽出し、根拠に基づいた回答を生成。
 * **精度評価ダッシュボード**: テストケース 20 件による自動評価を行い、合格率を円グラフで可視化。
@@ -50,6 +68,8 @@ Gemini API を活用し、社内規定（PDF）に基づいた正確な回答を
 | 開発言語  | Python 3.13.2 | AIライブラリが豊富なため |
 |  フレームワーク | Streamlit 1.55.0 | 素早く簡易的にAIモデル開発ができるため |
 |  AIモデル | Gemini 2.5 Flash-lite| 無料枠で最新かつ低コストで運用が可能なため |
+|  フレームワーク | Streamlit 1.42.0 | 素早く簡易的にAIモデル開発ができるため |
+|  AIモデル | Gemini 2.0 Flash-lite| 無料枠で最新かつ低コストで運用が可能なため |
 |  データ可視化 | Plotly | 動的なグラフが表示可能なため |
 |  データ処理 | Pandas | CSVの統計処理に必要なため |
 |   PDF処理  | PyPDF | PDFテキスト抽出機能に必要なため |

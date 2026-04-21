@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Optional, Tuple, Dict, Any
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -24,8 +25,11 @@ PDF_PATH = "data/kintai_rule.pdf"
 GUIDE_PATH = "assets/usage_guide.md"
 GEMINI_MODEL = "gemini-2.5-flash-lite"
 
+FEEDBACK_RESOLVED = "解決しました"
+FEEDBACK_UNRESOLVED = "解決してません"
+
 # ---  メソッド定義 (UIパーツ) ---
-def load_app_settings():
+def load_app_settings() -> Tuple[str, Dict[str, Any]]:
     """
     外部ファイルからシステムプロンプトとアプリケーション設定を読み込む。
 
@@ -61,7 +65,7 @@ def load_app_settings():
         st.stop()
 
 @st.dialog("📄 勤怠ルールpdf")
-def show_pdf_dialog(pdf_path):
+def show_pdf_dialog(pdf_path: str):
     """
     ポップアップダイアログ内にPDFを表示する。
 
@@ -85,7 +89,7 @@ def show_pdf_dialog(pdf_path):
     except Exception as e:
         st.error(f"PDFの表示中にエラーが発生しました: {e}")
 
-def display_sidebar_pdf_trigger(pdf_path):
+def display_sidebar_pdf_trigger(pdf_path: str):
     """
     サイドバーにポップアップでPDFを表示させるボタンを設定
 
@@ -100,7 +104,7 @@ def display_sidebar_pdf_trigger(pdf_path):
             show_pdf_dialog(pdf_path)
 
 @st.cache_data
-def load_markdown_file(file_path):
+def load_markdown_file(file_path: str) -> str:
     """
     指定されたパスのMarkdownファイルを読み込み、テキストとして返す。
     Streamlitのキャッシュを利用し、再読み込みの負荷を軽減する。
@@ -117,7 +121,7 @@ def load_markdown_file(file_path):
     except FileNotFoundError:
         return "⚠️ ガイドファイルが見つかりませんでした。"
 
-def display_faq_buttons():
+def display_faq_buttons() -> Optional[str]:
     """
     チャット開始時に表示するFAQ（よくある質問）ボタン群を生成する。
 
@@ -136,7 +140,7 @@ def display_faq_buttons():
         return "電車が遅延した場合は？"
     return None
 
-def display_feedback_buttons(idx):
+def display_feedback_buttons(idx: int) -> Optional[str]:
     """
     AIの回答後に表示する「解決・未解決」フィードバックボタンを生成する。
 
@@ -151,13 +155,15 @@ def display_feedback_buttons(idx):
 
     if st.button("👍 はい (解決した)", key=f"yes_{idx}"):
         return "解決しました"
+        return FEEDBACK_RESOLVED
     if st.button("👎 いいえ (解決しない)", key=f"no_{idx}"):
         return "解決してません"
+        return FEEDBACK_UNRESOLVED
     return None
 
 # --- メソッド定義 (データ処理・API) ---
 @st.cache_resource
-def get_pdf_text(pdf_path):
+def get_pdf_text(pdf_path: str) -> Optional[str]:
     """
     PDFファイルから全テキストを抽出し、Streamlitのリソースキャッシュに保存する。
 
@@ -178,7 +184,7 @@ def get_pdf_text(pdf_path):
         return None
 
 @st.cache_resource
-def get_ai_client():
+def get_ai_client() -> genai.Client:
     """
     Google Gen AI クライアントを初期化し、キャッシュとして保持する。
 
@@ -187,7 +193,7 @@ def get_ai_client():
     """
     return genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-def render_chat_interface():
+def render_chat_interface() -> Tuple[Optional[str], Optional[str]]:
     """
     現在のチャット履歴に基づき、メッセージおよびUIコンポーネントを画面に描画する。
 
@@ -217,7 +223,7 @@ def render_chat_interface():
 
     return selected_question, feedback_selection
 
-def handle_feedback(final_prompt, form_url):
+def handle_feedback(final_prompt: str, form_url: str) -> str:
     """
     ユーザーからのフィードバックに対し、適切な案内メッセージを生成する。
 
@@ -228,7 +234,7 @@ def handle_feedback(final_prompt, form_url):
     Returns:
         str: システムが返信として表示するメッセージ。
     """
-    if final_prompt == "解決しました":
+    if final_prompt == FEEDBACK_RESOLVED:
         msg = "お役に立てて光栄です！また何かあればいつでもご質問ください。"
         st.success(msg)
     else:
@@ -236,7 +242,7 @@ def handle_feedback(final_prompt, form_url):
         st.info(msg)
     return msg
 
-def get_gemini_answer(client, final_prompt, pdf_content, base_instruction):
+def get_gemini_answer(client: genai.Client, final_prompt: str, pdf_content: str, base_instruction: str) -> Optional[str]:
     """
     Gemini APIを呼び出し、PDFの内容に基づいたRAG（検索拡張生成）回答を取得する。
 
@@ -269,9 +275,28 @@ def get_gemini_answer(client, final_prompt, pdf_content, base_instruction):
             st.error("☁️ 現在Googleのサーバーが大変混み合っています。少し時間をおいてから再度お試しください。")
         elif "400" in str(e):
             st.error("⚠️ 送信データに不備があります（二重送信や空のデータ）。一度ページをリロードして再度お試しください。")
+        error_msg = str(e)
+        if "429" in error_msg:
+            st.warning("⚠️ 混雑しています。少し待ってから再度お試しください。")
+        elif "503" in error_msg:
+            st.error("☁️ サーバーが一時的に不安定です。")
         else:
             st.error(f"エラーが発生しました: {e}")
+            st.error(f"予期せぬエラー: {error_msg}")
         return None
+
+def initialize_session_state():
+    """セッション状態の初期化を集約"""
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    if "display_history" not in st.session_state:
+        initial_message = (
+            "こんにちは。 社内規定（勤怠管理）について、どのような情報をお探しでしょうか？\n\n"
+            "お気軽にご質問ください。"
+        )
+        st.session_state.display_history = [{"role": "assistant", "content": initial_message}]
+    if "feedback_done" not in st.session_state:
+        st.session_state.feedback_done = False
 
 def main():
     # 初期設定
@@ -280,6 +305,8 @@ def main():
     responsive_title("勤怠管理Q&Aチャットボット")
 
     # システムプロンプトと申請フォームの読み込み
+    initialize_session_state()
+
     if "config" not in st.session_state or "system_prompt" not in st.session_state:
         load_instruction, config = load_app_settings()
         st.session_state.system_prompt = load_instruction
@@ -335,7 +362,7 @@ def main():
     # --- 回答生成プロセス ---
     if final_prompt:
         # 解決ボタン以外（新しい質問やFAQ）が入力されたら、フラグをリセットしてボタンを表示
-        if final_prompt not in ["解決しました", "解決してません"]:
+        if final_prompt not in [FEEDBACK_RESOLVED, FEEDBACK_UNRESOLVED]:
             st.session_state.feedback_done = False
 
         # ユーザー入力の反映
@@ -344,7 +371,7 @@ def main():
             st.markdown(final_prompt)
 
         # 入力内容に応じて分岐(フィードバック or AI回答)
-        if final_prompt in ["解決しました", "解決してません"]:
+        if final_prompt in [FEEDBACK_RESOLVED, FEEDBACK_UNRESOLVED]:
             st.session_state.feedback_done = True
             with st.chat_message("assistant"):
                 ans_text = handle_feedback(final_prompt, FORM_URL)
